@@ -1,16 +1,11 @@
 bool isUnivalTree(struct TreeNode *root)
 {
     if (root == NULL)
-        return 1;
-    if (root->left)
-    {
-        if (root->left->val != root->val)
-            return 0;
-    }
-    if (root->right)
-    {
-        if (root->right->val != root->val)
-            return 0;
-    }
+        return true;
+
+    if ((root->left  && root->left->val  != root->val) ||
+        (root->right && root->right->val != root->val))
+        return false;
+
     return isUnivalTree(root->left) && isUnivalTree(root->right);
 }
