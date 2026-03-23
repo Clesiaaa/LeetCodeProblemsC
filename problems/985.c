@@ -1,39 +1,44 @@
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
+#include <stdlib.h>
 
-// collecting sum Runtime: O(len(queries)), Space: O(1)
-int* sumEvenAfterQueries(int* nums, int numsSize, int** queries, int queriesSize, int* queriesColSize, int* returnSize){
-    int summ = 0;
-    int* result = malloc(queriesSize * sizeof(int));
+int* sumEvenAfterQueries(int* nums, int numsSize, int** queries, int queriesSize, int* queriesColSize, int* returnSize) {
+    (void)queriesColSize; // suppress unused warning
+
+    int evenSum = 0;
     *returnSize = queriesSize;
-    
-    for(int i = 0; i < numsSize; i++){
-        if (nums[i] % 2 == 0) {
-            summ += nums[i];
+
+    int* result = (int*)malloc(sizeof(int) * queriesSize);
+    if (!result) return NULL; // safety check
+
+    // Initial sum of even numbers
+    for (int i = 0; i < numsSize; i++) {
+        if ((nums[i] & 1) == 0) {  // faster even check
+            evenSum += nums[i];
         }
     }
-    
-    for(int i = 0; i < queriesSize; i++){
-        int* query = queries[i];
-        int val = query[0];
-        int index = query[1];
-        
-        // sub index value from summ if it's even
-        if (nums[index] % 2 == 0) {
-            summ -= nums[index];
+
+    for (int i = 0; i < queriesSize; i++) {
+        int val = queries[i][0];
+        int idx = queries[i][1];
+
+        int oldVal = nums[idx];
+
+        // If old value was even, remove it
+        if ((oldVal & 1) == 0) {
+            evenSum -= oldVal;
         }
 
-        // modify the nums[index] value
-        nums[index] += val;
+        // Update value
+        nums[idx] += val;
 
-        // add index value from summ if it's even
-        if (nums[index] % 2 == 0) {
-            summ += nums[index];
+        int newVal = nums[idx];
+
+        // If new value is even, add it
+        if ((newVal & 1) == 0) {
+            evenSum += newVal;
         }
-        
-        result[i] = summ;
+
+        result[i] = evenSum;
     }
-    
+
     return result;
 }
