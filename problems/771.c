@@ -1,17 +1,17 @@
-// for strlen()
 #include <string.h>
 
 int numJewelsInStones(char *j, char *s)
 {
-    // as strlen is O(n), store it once rather than using it in for loop
-    int cnt[500], lens = strlen(s), lenj = strlen(j), sol = 0;
-    memset(cnt, 0, sizeof(cnt));
+    int cnt[256] = {0};  // enough for all ASCII chars
+    int sol = 0;
 
-    // lookup to know which character occurs in j
-    for (int i = 0; i < lenj; i++) cnt[j[i]]++;
+    // mark jewels
+    for (int i = 0; j[i]; i++)
+        cnt[(unsigned char)j[i]] = 1;
 
-    // count the characters in s
-    for (int i = 0; i < lens; i++) sol += cnt[s[i]];
+    // count stones
+    for (int i = 0; s[i]; i++)
+        sol += cnt[(unsigned char)s[i]];
 
     return sol;
 }
