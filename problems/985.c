@@ -1,44 +1,76 @@
+/*
+ * sumEvenAfterQueries
+ *
+ * For each query [val, idx]: adds val to nums[idx], then records
+ * the running sum of all even elements in nums.
+ *
+ * Time:  O(n + q)  — one pass for init, one pass per query
+ * Space: O(q)      — result array only
+ *
+ * Returns a heap-allocated array of size queriesSize (caller must free),
+ * or NULL on invalid input / allocation failure.
+ */
+
 #include <stdlib.h>
+#include <stddef.h>
 
-int* sumEvenAfterQueries(int* nums, int numsSize, int** queries, int queriesSize, int* queriesColSize, int* returnSize) {
-    (void)queriesColSize; // suppress unused warning
+static inline int is_even(int x) { return (x & 1) == 0; }
 
-    int evenSum = 0;
-    *returnSize = queriesSize;
-
-    int* result = (int*)malloc(sizeof(int) * queriesSize);
-    if (!result) return NULL; // safety check
-
-    // Initial sum of even numbers
-    for (int i = 0; i < numsSize; i++) {
-        if ((nums[i] & 1) == 0) {  // faster even check
-            evenSum += nums[i];
-        }
+int *sumEvenAfterQueries(
+        int       *nums,
+        int        numsSize,
+        int      **queries,
+        int        queriesSize,
+        const int *queriesColSize,
+        int       *returnSize)
+{
+    /* --- guard against bad arguments --- */
+    *returnSize = 0;
+    if (!nums || numsSize <= 0 || !queries || queriesSize <= 0
+            || !queriesColSize || !returnSize) {
+        return NULL;
     }
 
+    int *result = (int *)malloc((size_t)queriesSize * sizeof(int));
+    if (!result) return NULL;
+
+    /* --- initial even-sum --- */
+    int even_sum = 0;
+    for (int i = 0; i < numsSize; i++) {
+        if (is_even(nums[i])) even_sum += nums[i];
+    }
+
+    /* --- process queries --- */
     for (int i = 0; i < queriesSize; i++) {
-        int val = queries[i][0];
-        int idx = queries[i][1];
-
-        int oldVal = nums[idx];
-
-        // If old value was even, remove it
-        if ((oldVal & 1) == 0) {
-            evenSum -= oldVal;
+        /* validate that this query row has at least 2 columns */
+        if (queriesColSize[i] < 2) {
+            free(result);
+            *returnSize = 0;
+            return NULL;
         }
 
-        // Update value
+        const int val = queries[i][0];
+        const int idx = queries[i][1];
+
+        /* validate index bounds */
+        if (idx < 0 || idx >= numsSize) {
+            free(result);
+            *returnSize = 0;
+            return NULL;
+        }
+
+        /* remove old contribution if even */
+        if (is_even(nums[idx])) even_sum -= nums[idx];
+
+        /* apply update */
         nums[idx] += val;
 
-        int newVal = nums[idx];
+        /* add new contribution if even */
+        if (is_even(nums[idx])) even_sum += nums[idx];
 
-        // If new value is even, add it
-        if ((newVal & 1) == 0) {
-            evenSum += newVal;
-        }
-
-        result[i] = evenSum;
+        result[i] = even_sum;
     }
 
+    *returnSize = queriesSize;
     return result;
 }
