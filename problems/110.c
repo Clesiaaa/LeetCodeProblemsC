@@ -1,19 +1,23 @@
-int max(int a, int b) { return a >= b ? a : b; }
-
-int height(struct TreeNode *root)
+/* Returns -1 if unbalanced, otherwise returns the height.
+   Single-pass O(n) — avoids redundant height recomputation. */
+static int checkHeight(const struct TreeNode *node)
 {
-    if (root == NULL)
+    if (node == NULL)
         return 0;
-    else
-        return 1 + max(height(root->left), height(root->right));
+
+    int leftHeight = checkHeight(node->left);
+    if (leftHeight == -1) return -1;          /* Propagate failure early */
+
+    int rightHeight = checkHeight(node->right);
+    if (rightHeight == -1) return -1;
+
+    if (abs(leftHeight - rightHeight) > 1)
+        return -1;                             /* Unbalanced at this node */
+
+    return 1 + (leftHeight > rightHeight ? leftHeight : rightHeight);
 }
 
-bool isBalanced(struct TreeNode *root)
+bool isBalanced(const struct TreeNode *root)
 {
-    if (root == NULL)
-        return 1;
-    int left = height(root->left);
-    int right = height(root->right);
-    return abs(left - right) <= 1 && isBalanced(root->left) &&
-           isBalanced(root->right);
+    return checkHeight(root) != -1;
 }
