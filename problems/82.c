@@ -1,20 +1,8 @@
-struct ListNode *deleteDuplicates(struct ListNode *head)
-{
-    if (head == NULL)
-        return NULL;
-
-    if (head->next && head->val == head->next->val)
-    {
-        /* Remove all duplicate numbers */
-        while (head->next && head->val == head->next->val)
-        {
-            head = head->next;
-        }
-        return deleteDuplicates(head->next);
+struct ListNode* deleteDuplicates(struct ListNode* h){
+    if(!h || !h->next) return h;
+    if(h->val == h->next->val){
+        while(h->next && h->val == h->next->val) h = h->next;
+        return deleteDuplicates(h->next);
     }
-    else
-    {
-        head->next = deleteDuplicates(head->next);
-    }
-    return head;
+    return h->next = deleteDuplicates(h->next), h;
 }
